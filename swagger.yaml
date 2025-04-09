@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  title: 台灣證券交易所API
+  description: 提供台灣證券交易所數據的API服務
+  version: 1.0.0
+  contact:
+    name: API支持
+servers:
+  - url: http://localhost:3000
+    description: 本地開發服務器
+  # 部署後添加您的雲平台URL
+  # - url: https://your-cloud-platform-url.com
+  #   description: 生產環境服務器
+
+tags:
+  - name: 股票數據
+    description: 股票市場相關操作
+
+paths:
+  /api/stocks:
+    get:
+      tags:
+        - 股票數據
+      summary: 獲取所有股票數據
+      description: 返回所有已保存的台灣證券交易所數據
+      operationId: getAllStocks
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StockData'
+        '500':
+          description: 服務器錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/stocks/latest:
+    get:
+      tags:
+        - 股票數據
+      summary: 獲取最新股票數據
+      description: 返回最新的台灣證券交易所數據
+      operationId: getLatestStock
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/StockData'
+        '500':
+          description: 服務器錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/stocks/refresh:
+    post:
+      tags:
+        - 股票數據
+      summary: 手動刷新股票數據
+      description: 從台灣證券交易所手動獲取最新數據
+      operationId: refreshStockData
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+          required: false
+          description: 可選的日期 (格式: YYYY-MM-DD)
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '500':
+          description: 服務器錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/stocks/date/{date}:
+    get:
+      tags:
+        - 股票數據
+      summary: 獲取特定日期的股票數據
+      description: 根據日期返回台灣證券交易所數據
+      operationId: getStockByDate
+      parameters:
+        - in: path
+          name: date
+          required: true
+          schema:
+            type: string
+          description: 日期 (格式: YYYY-MM-DD 或 台灣證券交易所格式)
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/StockData'
+        '404':
+          description: 找不到數據
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 服務器錯誤
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    StockData:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: 數據ID
+        date:
+          type: string
+          description: 交易日期
+        tradeVolume:
+          type: string
+          description: 成交股數
+        tradeValue:
+          type: string
+          description: 成交金額
+        transaction:
+          type: string
+          description: 成交筆數
+        index:
+          type: string
+          description: 發行量加權股價指數
+        change:
+          type: string
+          description: 漲跌點數
+        source:
+          type: string
+          description: 數據來源
+        sourceUrl:
+          type: string
+          description: 來源URL
+        updatedAt:
+          type: string
+          format: date-time
+          description: 更新時間
+      example:
+        _id: "60a7b7e8f0d4c62a8c4f9e04"
+        date: "111/01/03"
+        tradeVolume: "7,304,697,037"
+        tradeValue: "363,742,949,735"
+        transaction: "2,886,599"
+        index: "18,270.51"
+        change: "+77.51"
+        source: "FMTQIK"
+        sourceUrl: "https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date=20230103"
+        updatedAt: "2023-01-03T15:30:00.000Z"
+    
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "獲取數據失敗"
+        error:
+          type: string
+          example: "Internal Server Error"
