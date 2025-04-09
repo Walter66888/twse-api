@@ -49,9 +49,9 @@ cron.schedule('45 8 * * 1-5', async () => {
   timezone: "Asia/Taipei"
 });
 
-// 設置定時任務 - 每天13:30執行
-cron.schedule('30 13 * * 1-5', async () => {
-  console.log('執行13:30定時更新...');
+// 設置定時任務 - 每小時執行一次
+cron.schedule('0 * * * *', async () => {
+  console.log('執行每小時定時更新...');
   try {
     await fetchTwseData();
     console.log('資料更新成功!');
