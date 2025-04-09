@@ -6,6 +6,8 @@ info:
   contact:
     name: API支持
 servers:
+  - url: https://twse-api.onrender.com
+    description: 生產環境服務器
   - url: http://localhost:3000
     description: 本地開發服務器
   # 部署後添加您的雲平台URL
